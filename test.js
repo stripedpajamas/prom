@@ -16,6 +16,7 @@ function b () {
 }
 
 async function main () {
+  // promise style
   a().then((res) => {
     console.log('(promise style) got this from a:', res)
     assert(res, 'done with a')
@@ -25,6 +26,7 @@ async function main () {
     assert(e, 'done with b')
   })
 
+  // async/await style
   const ares = await a()
   console.log('(await style) got this from a:', ares)
   assert.strictEqual(ares, 'done with a')
@@ -34,6 +36,8 @@ async function main () {
     console.log('(await style) got this from b:', e)
     assert.strictEqual(e, 'done with b')
   }
+
+  assert.rejects(b)
 }
 
 main()
