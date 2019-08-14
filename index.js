@@ -8,7 +8,7 @@ class Prom {
     this.resolvedData = undefined
     this.rejectedData = undefined
 
-    cb(this.resolve, this.reject)
+    setTimeout(() => cb(this.resolve, this.reject), 0)
   }
   resolve (data) {
     this.resolved = true
