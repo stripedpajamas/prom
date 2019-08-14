@@ -12,11 +12,11 @@ class Prom {
     if (!this.rejecter) throw new Error('unhandled promise rejection bs')
     this.rejecter(data)
   }
-  then (resolve = () => {}, reject = () => {}) {
+  then (resolve = () => {}, reject) {
     this.resolver = resolve
     this.rejecter = reject
   }
-  catch (reject = () => {}) {
+  catch (reject) {
     this.rejecter = reject
   }
 }
