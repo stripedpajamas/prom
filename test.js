@@ -15,6 +15,15 @@ function b () {
   })
 }
 
+function c () {
+  return new Prom((resolve) => {
+    setTimeout(() => {
+      console.log('c log delayed by 2 seconds')
+      resolve()
+    }, 2000)
+  })
+}
+
 async function main () {
   // promise style
   a().then((res) => {
@@ -37,7 +46,23 @@ async function main () {
     assert.strictEqual(e, 'done with b')
   }
 
+  // b rejects, right ?
   assert.rejects(b)
+
+  // confirming prom is not synchronous
+  c().then(() => { console.log('this must log AFTER the c log') })
+
+  // chaining
+  // a().then((ares) => {
+  //     console.log('(chain 1) got this from a:', ares)
+  //     assert.strictEqual(ares, 'done with a')
+  //     return b()
+  //   }).then((bres) => {
+  //     throw new Error('this should not be reachable')
+  //   }).catch((berr) => {
+  //     console.log('(chain 2) got this from b:', berr)
+  //     assert.strictEqual(e, 'done with b')
+  //   })
 }
 
 main()

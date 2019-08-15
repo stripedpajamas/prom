@@ -6,7 +6,7 @@ class Prom {
     setTimeout(() => cb(this.resolve, this.reject), 0)
   }
   resolve (data) {
-    this.resolver(data)
+    this.next = this.resolver(data)
   }
   reject (data) {
     if (!this.rejecter) throw new Error('unhandled promise rejection bs')
@@ -14,7 +14,12 @@ class Prom {
   }
   then (resolve = () => {}, reject) {
     this.resolver = resolve
-    this.rejecter = reject
+    this.catch(reject)
+
+    if (this.next instanceof Prom) {
+      return this.next
+    }
+    // return new Prom()
   }
   catch (reject) {
     this.rejecter = reject
