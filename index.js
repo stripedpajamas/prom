@@ -1,28 +1,54 @@
 class Prom {
   constructor (cb) {
-    this.resolve = this.resolve.bind(this)
-    this.reject = this.reject.bind(this)
+    this.resolvers = []
+    this.rejectors = []
 
-    setTimeout(() => cb(this.resolve, this.reject), 0)
+    setTimeout(() => cb(this.resolve.bind(this), this.reject.bind(this)), 0)
+  }
+  static resolve (data) {
+    return new Prom((resolve) => resolve(data))
+  }
+  static reject (data) {
+    return new Prom((_, reject) => reject(data))
   }
   resolve (data) {
-    this.next = this.resolver(data)
+    const resolver = this._getResolver()
+    if (!resolver) return
+
+    try {
+      resolver(data)
+    } catch (e) {
+      this.reject(e)
+    }
   }
   reject (data) {
-    if (!this.rejecter) throw new Error('unhandled promise rejection bs')
-    this.rejecter(data)
+    const rejector = this._getRejector()
+    if (!rejector) throw new Error('unhandled promise rejection bs')
+
+    rejector(data)
   }
-  then (resolve = () => {}, reject) {
-    this.resolver = resolve
+  then (resolve, reject) {
+    if (typeof resolve !== 'function') {
+      return this
+    }
+    this.resolvers.push(resolve)
     this.catch(reject)
 
-    if (this.next instanceof Prom) {
-      return this.next
-    }
-    // return new Prom()
+    return this
   }
   catch (reject) {
-    this.rejecter = reject
+    if (typeof reject !== 'function') {
+      return this
+    }
+    this.rejectors.push(reject)
+
+    return this
+  }
+  _getResolver () {
+    return this.resolvers.shift()
+  }
+  _getRejector () {
+    return this.rejectors.shift()
   }
 }
 

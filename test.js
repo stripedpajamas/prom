@@ -5,14 +5,14 @@ function a () {
   return new Prom((resolve, reject) => {
     console.log('[a running] doing something good')
     resolve('done with a')
-  })
+  }, 'a')
 }
 
 function b () {
   return new Prom((resolve, reject) => {
     console.log('[b running] doing something bad')
     reject('done with b')
-  })
+  }, 'b')
 }
 
 function c () {
@@ -21,7 +21,7 @@ function c () {
       console.log('c log delayed by 2 seconds')
       resolve()
     }, 2000)
-  })
+  }, 'c')
 }
 
 async function main () {
@@ -52,13 +52,37 @@ async function main () {
   // confirming prom is not synchronous
   c().then(() => { console.log('this must log AFTER the c log') })
 
-  // chaining
+  // resolve directly
+  Prom.resolve(123).then((res) => {
+    assert.strictEqual(res, 123)
+    console.log('resolve directly passed')
+  })
+
+  // reject directly
+  Prom.reject(123).catch((e) => {
+    assert.strictEqual(e, 123)
+    console.log('reject directly passed')
+  })
+
+  // single promise chaining
+  Prom.resolve(123)
+    .then((res) => {
+      assert.strictEqual(res, 123)
+      console.log('(single chain) then passed')
+      throw new Error('an error')
+    })
+    .catch((e) => {
+      assert.strictEqual(e.message, 'an error')
+      console.log('(single chain) catch passed')
+    })
+
+  // double chaining
   // a().then((ares) => {
   //     console.log('(chain 1) got this from a:', ares)
   //     assert.strictEqual(ares, 'done with a')
   //     return b()
   //   }).then((bres) => {
-  //     throw new Error('this should not be reachable')
+  //     console.error('this should not be reachable')
   //   }).catch((berr) => {
   //     console.log('(chain 2) got this from b:', berr)
   //     assert.strictEqual(e, 'done with b')
